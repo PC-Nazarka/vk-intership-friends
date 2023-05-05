@@ -10,6 +10,8 @@ class Invite(models.Model):
     )
     is_accept = models.BooleanField(
         default=None,
+        blank=True,
+        null=True,
         verbose_name="Принята ли заявка",
     )
     owner = models.ForeignKey(

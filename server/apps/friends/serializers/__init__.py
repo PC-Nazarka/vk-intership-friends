@@ -1,3 +1,3 @@
-from .invite import InviteSerializer
+from .invite import InviteAcceptSerializer, InviteSerializer
 
-__all__ = (InviteSerializer,)
+__all__ = (InviteSerializer, InviteAcceptSerializer)
