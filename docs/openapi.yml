@@ -9,6 +9,8 @@ tags:
     description: "Auth namespace"
   - name: users
     description: "Users namespace"
+  - name: invites
+    description: "Invites namespace"
 
 paths:
   "/api/token/":
