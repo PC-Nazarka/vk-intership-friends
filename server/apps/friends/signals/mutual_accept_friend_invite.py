@@ -7,9 +7,9 @@ from apps.friends.models import Invite
 @receiver(post_save, sender=Invite)
 def mutual_accept_friend_invite(instance, created, **kwargs) -> None:
     if created:
-        if Invite.objects.filter(target=instance.owner, owner=instance.target).exists():
+        if (other := Invite.objects.filter(target=instance.owner, owner=instance.target, is_accept=None)).exists():
             instance.is_accept = True
             instance.save()
-            Invite.objects.filter(target=instance.owner, owner=instance.target).update(is_accept=instance.is_accept)
+            other.update(is_accept=instance.is_accept)
             instance.owner.friends.add(instance.target)
             instance.target.friends.add(instance.owner)

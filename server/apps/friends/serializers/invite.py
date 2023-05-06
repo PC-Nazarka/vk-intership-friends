@@ -18,7 +18,7 @@ class InviteAcceptSerializer(serializers.Serializer):
 
 class InviteSerializer(serializers.ModelSerializer):
     target = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    is_accept = serializers.BooleanField(allow_null=True, default=None)
 
     class Meta:
         model = Invite
@@ -26,22 +26,25 @@ class InviteSerializer(serializers.ModelSerializer):
             "id",
             "target",
             "is_accept",
-            "owner",
         )
 
     def validate_is_accept(self, is_accept):
         if is_accept is not None:
             raise serializers.ValidationError(
-                "Заявка не может с самого начала быть принята",
+                "Заявка не может с самого начала быть принятой/непринятой",
             )
         return is_accept
 
-    def validate_target(self, target):
-        if target == self.owner:
+    def validate(self, attrs):
+        if attrs["target"] == self.context["request"].user:
             raise serializers.ValidationError(
-                "Нельзя отправить заявку самосу себе",
+                "Нельзя отправить заявку самому себе",
             )
-        return target
+        if self.context["request"].user.friends.filter(id=attrs["target"].id).exists():
+            raise serializers.ValidationError(
+                "Нельзя отправить заявку пользователю, который уже является вашим другом",
+            )
+        return attrs
 
     def to_representation(self, instance):
         data = super().to_representation(instance)

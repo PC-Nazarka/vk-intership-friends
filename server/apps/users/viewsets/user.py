@@ -3,7 +3,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.core.viewsets import CreateReadListViewSet
-from apps.friends.models import Invite
 from apps.friends.serializers import InviteSerializer
 from apps.users.constants import FriendStatuses
 from apps.users.models import User
@@ -36,7 +35,7 @@ class UserViewSet(CreateReadListViewSet):
     def outgoing_invites(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @action(methods=('GET',), detail=False)
+    @action(methods=('GET',), detail=False, url_path="friends", url_name="friends")
     def friends_list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
@@ -46,9 +45,9 @@ class UserViewSet(CreateReadListViewSet):
         user = self.get_object()
         if request.user.friends.filter(id=user.id).exists():
             friend_status = FriendStatuses.IS_FRIENDS
-        elif Invite.objects.filter(owner=user, target=request.user).exists():
+        elif request.user.incoming.filter(owner=user, target=request.user, is_accept=None).exists():
             friend_status = FriendStatuses.IS_INCOMING
-        elif Invite.objects.filter(target=user, owner=request.user).exists():
+        elif request.user.outgoing.filter(target=user, owner=request.user, is_accept=None).exists():
             friend_status = FriendStatuses.IS_OUTGOING
         return Response(
             data={"status": friend_status},
