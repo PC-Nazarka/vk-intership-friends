@@ -275,6 +275,28 @@ def test_delete_friends(api_client) -> None:
     assert response1.data["status"] == response2.data["status"] == FriendStatuses.NOT_FRIENDS
 
 
+def test_delete_friends_failed(api_client) -> None:
+    """Тест на провальное удаление из друзей."""
+    user1, user2 = UserFactory.create_batch(size=COUNT_USERS_FRIENDS)
+
+    api_client.force_authenticate(user=user1)
+    response1 = api_client.get(
+        reverse_lazy("api:users-friend-status", kwargs={"pk": user2.pk}),
+    )
+    api_client.force_authenticate(user=user2)
+    response2 = api_client.get(
+        reverse_lazy("api:users-friend-status", kwargs={"pk": user1.pk}),
+    )
+    assert response1.data["status"] == response2.data["status"] == FriendStatuses.NOT_FRIENDS
+
+    api_client.force_authenticate(user=user1)
+    response = api_client.delete(
+        reverse_lazy("api:users-delete-friend", kwargs={"pk": user2.pk}),
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data["message"] == "Пользователь не является вашим другом"
+
+
 def test_mutual_accept_friend_invite(api_client) -> None:
     """Тест на принятие заявок после отправки взаимных заявок."""
     user1, user2 = UserFactory.create_batch(size=COUNT_USERS_FRIENDS)

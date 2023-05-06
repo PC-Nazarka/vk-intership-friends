@@ -54,11 +54,16 @@ class UserViewSet(CreateReadListViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(methods=('DELETE',), detail=True, url_name="delete-friend")
+    @action(methods=('DELETE',), detail=True)
     def delete_friend(self, request, *args, **kwargs):
         user = self.get_object()
-        request.user.friends.remove(user)
-        user.friends.remove(request.user)
+        if request.user.friends.filter(id=user.id).exists():
+            request.user.friends.remove(user)
+            user.friends.remove(request.user)
+            return Response(
+                status=status.HTTP_204_NO_CONTENT,
+            )
         return Response(
-            status=status.HTTP_204_NO_CONTENT,
+            data={"message": "Пользователь не является вашим другом"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
