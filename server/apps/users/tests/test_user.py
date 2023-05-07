@@ -418,3 +418,15 @@ def test_create_invite_to_user_that_already_friend(api_client) -> None:
         reverse_lazy("api:users-friend-status", kwargs={"pk": user1.pk}),
     )
     assert response1.data["status"] == response2.data["status"] == FriendStatuses.IS_FRIENDS
+
+
+def test_read_status_with_the_same_usr(api_client) -> None:
+    """Тест на чтение статуса с самим собой."""
+    user = UserFactory.create()
+
+    api_client.force_authenticate(user=user)
+    response = api_client.get(
+        reverse_lazy("api:users-friend-status", kwargs={"pk": user.pk}),
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data["message"] == "Нельзя узнавать статус с самим собой"

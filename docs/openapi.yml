@@ -128,7 +128,7 @@ paths:
         "404":
           description: "Not Found"
 
-  "/api/users/{user_id}/friend-status/":
+  "/api/users/{user_id}/status/":
     get:
       tags:
         - users

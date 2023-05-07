@@ -27,11 +27,11 @@ class UserViewSet(CreateReadListViewSet):
             return self.request.user.friends.all()
         return User.objects.all()
 
-    @action(methods=('GET',), detail=False)
+    @action(methods=('GET',), detail=False, url_path="incoming-invites")
     def incoming_invites(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @action(methods=('GET',), detail=False)
+    @action(methods=('GET',), detail=False, url_path="outgoing-invites")
     def outgoing_invites(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
@@ -41,8 +41,13 @@ class UserViewSet(CreateReadListViewSet):
 
     @action(methods=('GET',), detail=True, url_path="status", url_name="friend-status")
     def get_friend_status(self, request, *args, **kwargs):
-        friend_status = FriendStatuses.NOT_FRIENDS
         user = self.get_object()
+        if request.user.id == user.id:
+            return Response(
+                data={"message": "Нельзя узнавать статус с самим собой"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        friend_status = FriendStatuses.NOT_FRIENDS
         if request.user.friends.filter(id=user.id).exists():
             friend_status = FriendStatuses.IS_FRIENDS
         elif request.user.incoming.filter(owner=user, target=request.user, is_accept=None).exists():
@@ -54,7 +59,7 @@ class UserViewSet(CreateReadListViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(methods=('DELETE',), detail=True)
+    @action(methods=('DELETE',), detail=True, url_path="delete-friend")
     def delete_friend(self, request, *args, **kwargs):
         user = self.get_object()
         if request.user.friends.filter(id=user.id).exists():
