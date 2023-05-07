@@ -3,13 +3,14 @@ from rest_framework.decorators import action
 
 from apps.core.viewsets import CreateReadViewSet
 from apps.friends.models import Invite
+from apps.friends.permissions import InvitePermission
 from apps.friends.serializers import InviteAcceptSerializer, InviteSerializer
 
 
 class InviteViewSet(CreateReadViewSet):
     serializer_class = InviteSerializer
     queryset = Invite.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated, InvitePermission)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -39,7 +40,3 @@ class InviteViewSet(CreateReadViewSet):
                 data={"message": "Отправитель заявки не может изменить ее статус"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        return response.Response(
-            data={"message": "Нельзя изменить статус чужого приложения"},
-            status=status.HTTP_403_FORBIDDEN,
-        )

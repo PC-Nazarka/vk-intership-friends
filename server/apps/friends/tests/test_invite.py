@@ -74,6 +74,40 @@ def test_create_invite_to_friend_same_user(api_client) -> None:
     assert str(response.data["non_field_errors"][0]) == "Нельзя отправить заявку самому себе"
 
 
+def test_read_invite_to_friend_auth(api_client) -> None:
+    """Тест на чтение заявки в друзья авторизированным пользователем."""
+    user1, user2, user3 = UserFactory.create_batch(size=COUNT_USERS_FRIENDS_OTHER)
+    api_client.force_authenticate(user=user2)
+    invite = InviteFactory.create(owner=user1, target=user2)
+
+    api_client.force_authenticate(user=user1)
+    response = api_client.get(
+        reverse_lazy("api:invites-detail", kwargs={'pk': invite.id}),
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+    api_client.force_authenticate(user=user2)
+    response = api_client.get(
+        reverse_lazy("api:invites-detail", kwargs={'pk': invite.id}),
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+    api_client.force_authenticate(user=user3)
+    response = api_client.get(
+        reverse_lazy("api:invites-detail", kwargs={'pk': invite.id}),
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_read_invite_to_friend_not_auth(api_client) -> None:
+    """Тест на просмотр заявки в друзья не авторизированным пользователем."""
+    invite = InviteFactory.create()
+    response = api_client.get(
+        reverse_lazy("api:invites-detail", kwargs={'pk': invite.id}),
+    )
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
 def test_accept_invite_to_friend_auth(api_client) -> None:
     """Тест на принятие заявки в друзья авторизированным пользователем."""
     user1, user2 = UserFactory.create_batch(size=COUNT_USERS_FRIENDS)
@@ -141,7 +175,6 @@ def test_accept_other_invite_to_friend(api_client) -> None:
         },
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.data["message"] == "Нельзя изменить статус чужого приложения"
     assert Invite.objects.get(id=invite.id).is_accept is not is_accept_request
     assert Invite.objects.get(id=invite.id).is_accept is None
 
