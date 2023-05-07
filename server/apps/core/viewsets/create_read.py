@@ -3,7 +3,7 @@ from rest_framework import mixins, viewsets
 
 class CreateReadViewSet(
     mixins.CreateModelMixin,
-    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
     pass

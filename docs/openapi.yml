@@ -41,24 +41,64 @@ paths:
         "400":
           $ref: "#/components/responses/TokenRefresh400"
 
-  "/api/users/me/":
-    get:
+  "/api/users/":
+    post:
       tags:
         - users
-      summary: "Get info about user from request"
-      security:
-        - bearerAuth: []
+      summary: "Create user"
+      requestBody:
+        $ref: "#/components/requestBodies/UserCreateBody"
       responses:
-        "200":
-          $ref: "#/components/responses/User200"
-        "401":
-          description: "Unauthorized"
+        "201":
+          $ref: "#/components/responses/UserCreate201"
+        "400":
+          $ref: "#/components/responses/UserCreate400"
 
-  "/api/users/":
     get:
       tags:
         - users
       summary: "Get users list"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          $ref: "#/components/responses/UserList200"
+        "401":
+          description: "Unauthorized"
+
+  "/api/users/incoming-invites/":
+    get:
+      tags:
+        - users
+        - invites
+      summary: "Get incoming invites of current user"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          $ref: "#/components/responses/InviteList200"
+        "401":
+          description: "Unauthorized"
+
+  "/api/users/outgoing-invites/":
+    get:
+      tags:
+        - users
+        - invites
+      summary: "Get outgoing invites of current user"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          $ref: "#/components/responses/InviteList200"
+        "401":
+          description: "Unauthorized"
+
+  "/api/users/friends/":
+    get:
+      tags:
+        - users
+      summary: "Get friends of current user"
       security:
         - bearerAuth: []
       responses:
@@ -85,6 +125,119 @@ paths:
           $ref: "#/components/responses/User200"
         "401":
           description: "Unauthorized"
+        "404":
+          description: "Not Found"
+
+  "/api/users/{user_id}/friend-status/":
+    get:
+      tags:
+        - users
+      summary: "Get friends status of user with user_id with current user"
+      parameters:
+        - name: user_id
+          in: path
+          schema:
+            type: number
+          required: true
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          $ref: "#/components/responses/UserStatus200"
+        "401":
+          description: "Unauthorized"
+        "404":
+          description: "Not Found"
+
+  "/api/users/{user_id}/delete-friend/":
+    delete:
+      tags:
+        - users
+      summary: "Delete user from friend list"
+      parameters:
+        - name: user_id
+          in: path
+          schema:
+            type: number
+          required: true
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: "No content"
+        "400":
+          description: "Bad request"
+        "401":
+          description: "Unauthorized"
+        "404":
+          description: "Not Found"
+
+  "/api/invites/":
+    post:
+      tags:
+        - invites
+      summary: "Create invite"
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/InviteCreateBody"
+      responses:
+        "201":
+          $ref: "#/components/responses/InviteCreate201"
+        "400":
+          $ref: "#/components/responses/InviteCreate400"
+        "401":
+          description: "Unauthorized"
+
+  "/api/invites/{invite_id}/":
+    get:
+      tags:
+        - invites
+      summary: "Get invite info"
+      parameters:
+        - name: invite_id
+          in: path
+          schema:
+            type: number
+          required: true
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          $ref: "#/components/responses/Invite200"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not fround"
+
+  "/api/invites/{invite_id}/accept/":
+    patch:
+      tags:
+        - invites
+      summary: "Accept invite"
+      parameters:
+        - name: invite_id
+          in: path
+          schema:
+            type: number
+          required: true
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/InviteAcceptBody"
+      responses:
+        "200":
+          $ref: "#/components/responses/InviteAccept200"
+        "400":
+          description: "Bad request"
+        "401":
+          description: "Unauthorized"
+        "403":
+          description: "Forbidden"
+        "404":
+          description: "Not found"
 
 components:
   securitySchemes:
@@ -105,6 +258,54 @@ components:
           type: string
         username:
           type: string
+
+    UserCreateBase:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+
+    UserStatusBase:
+      type: object
+      properties:
+        status:
+          type: string
+
+    InviteBase:
+      type: object
+      properties:
+        id:
+          type: number
+        owner:
+          $ref: "#/components/schemas/UserBase"
+        target:
+          $ref: "#/components/schemas/UserBase"
+        is_accept:
+          type: boolean
+
+    InviteCreateBase:
+      type: object
+      properties:
+        target:
+          type: number
+
+    InviteAcceptBase:
+      type: object
+      properties:
+        message:
+          type: string
+
+    InviteAcceptCreateBase:
+      type: object
+      properties:
+        is_accept:
+          type: boolean
 
   requestBodies:
     TokenPairRequestBody:
@@ -129,6 +330,27 @@ components:
                 type: string
       required: true
 
+    UserCreateBody:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserCreateBase"
+      required: true
+
+    InviteCreateBody:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/InviteCreateBase"
+      required: true
+
+    InviteAcceptBody:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/InviteAcceptCreateBase"
+      required: true
+
   responses:
     UserList200:
       description: "User list"
@@ -145,6 +367,56 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/UserBase"
+
+    UserCreate201:
+      description: "User create"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserBase"
+
+    UserCreate400:
+      description: "User create failed"
+
+    UserStatus200:
+      description: "Friend-status"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserStatusBase"
+
+    InviteAccept200:
+      description: "Accept invite to friend"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/InviteAcceptBase"
+
+    InviteList200:
+      description: "Invite list"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/InviteBase"
+
+    Invite200:
+      description: "Invite info"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/InviteBase"
+
+    InviteCreate201:
+      description: "Invite create"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/InviteBase"
+
+    InviteCreate400:
+      description: "Invite create failed"
 
     TokenObtain200:
       description: "Success"

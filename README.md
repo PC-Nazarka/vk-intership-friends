@@ -66,9 +66,8 @@ docker-compose run --rm django isort . --settings-file=./setup.cfg
 Запрос №1
 
 ```
-Адрес: http://localhost:8000/api/users/
+Адрес: http://localhost:8000/api/token/
 Метод: POST
-Тело:
 
 Статус ответа:
 Тело ответа:
@@ -77,8 +76,8 @@ docker-compose run --rm django isort . --settings-file=./setup.cfg
 Запрос №2
 
 ```
-Адрес: http://localhost:8000/api/users/
-Метод: GET
+Адрес: http://localhost:8000/api/token/refresh/
+Метод: POST
 
 Статус ответа:
 Тело ответа:
@@ -87,8 +86,9 @@ docker-compose run --rm django isort . --settings-file=./setup.cfg
 Запрос №3
 
 ```
-Адрес: http://localhost:8000/api/users/<int:pk>/
-Метод: GET
+Адрес: http://localhost:8000/api/users/
+Метод: POST
+Тело:
 
 Статус ответа:
 Тело ответа:
@@ -97,7 +97,7 @@ docker-compose run --rm django isort . --settings-file=./setup.cfg
 Запрос №4
 
 ```
-Адрес: http://localhost:8000/api/users/incoming-invites/
+Адрес: http://localhost:8000/api/users/
 Метод: GET
 
 Статус ответа:
@@ -107,7 +107,7 @@ docker-compose run --rm django isort . --settings-file=./setup.cfg
 Запрос №5
 
 ```
-Адрес: http://localhost:8000/api/users/outgoing-invites/
+Адрес: http://localhost:8000/api/users/<int:pk>/
 Метод: GET
 
 Статус ответа:
@@ -117,7 +117,7 @@ docker-compose run --rm django isort . --settings-file=./setup.cfg
 Запрос №6
 
 ```
-Адрес: http://localhost:8000/api/users/friends/
+Адрес: http://localhost:8000/api/users/incoming-invites/
 Метод: GET
 
 Статус ответа:
@@ -127,7 +127,7 @@ docker-compose run --rm django isort . --settings-file=./setup.cfg
 Запрос №7
 
 ```
-Адрес: http://localhost:8000/api/users/<int:pk>/friend-status/
+Адрес: http://localhost:8000/api/users/outgoing-invites/
 Метод: GET
 
 Статус ответа:
@@ -137,6 +137,26 @@ docker-compose run --rm django isort . --settings-file=./setup.cfg
 Запрос №8
 
 ```
+Адрес: http://localhost:8000/api/users/friends/
+Метод: GET
+
+Статус ответа:
+Тело ответа:
+```
+
+Запрос №9
+
+```
+Адрес: http://localhost:8000/api/users/<int:pk>/friend-status/
+Метод: GET
+
+Статус ответа:
+Тело ответа:
+```
+
+Запрос №10
+
+```
 Адрес: http://localhost:8000/api/users/<int:pk>/delete-friend/
 Метод: DELETE
 
@@ -144,7 +164,7 @@ docker-compose run --rm django isort . --settings-file=./setup.cfg
 Тело ответа:
 ```
 
-Запрос №9
+Запрос №11
 
 ```
 Адрес: http://localhost:8000/api/invites/
@@ -154,7 +174,7 @@ docker-compose run --rm django isort . --settings-file=./setup.cfg
 Тело ответа:
 ```
 
-Запрос №10
+Запрос №12
 
 ```
 Адрес: http://localhost:8000/api/invites/<int:pk>/
@@ -164,7 +184,7 @@ docker-compose run --rm django isort . --settings-file=./setup.cfg
 Тело ответа:
 ```
 
-Запрос №11
+Запрос №13
 
 ```
 Адрес: http://localhost:8000/api/invites/<int:pk>/accept/
